@@ -1,12 +1,263 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-        <title>Blank App</title>
-    </head>
-    <body>
-        <script type="text/javascript" src="cordova.js"></script>
-        it's a small world!
-    </body>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=no, minimal-ui">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=0.5, minimal-ui">--> 
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>学生証アプリ</title>
+  <link rel="stylesheet" href="js/libs/Framework7/css/framework7.ios.css">
+  <link rel="stylesheet" href="js/libs/Framework7/css/framework7.ios.colors.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/framework7-icons.css">
+  <link rel="icon" href="img/icon.png">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> 
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="js/libs/cropperjs/css/cropper.min.css">
+  
+  <style>
+    .jss-item-content-stamp{
+      background-repeat : no-repeat;
+      background-position:right top;
+      background-size:96px 96px;
+      height:96px;
+    }
+
+    #ret_icon {position: absolute; margin-left: 0px}
+    .jss-item-content-margin {margin-top: 5px; margin-bottom: 5px;}
+    .jss-item-content-margin_center {margin-top: 0px; margin-bottom: 0px; padding-left: 5px; padding-right: 5px;}
+    .jss-item-content-item {margin-left: 15px; text-align: left; font-size: 14px;}
+    .jss-item-content-text {margin-left: 15px; text-align: left; font-size: 12px;}
+    .jss-item-content-text_center {margin: 3px 0px; text-align: center;}
+    .content-block {margin-top: 10px; margin-bottom: 0px;}
+    .list-blocker .item-inner:after {content:none;}
+    .list-blocker ul:before {content:none;}
+    .list-blocker ul:after {content:none;}
+    body {line-height: 1.0;}
+    .content-block-title {margin: 0px 0px 0px 0px;}
+    .page-content {background: white}
+
+    .jss-item-content-item .item-inner:after {content:none;}
+    .jss-item-content-margin ul:before {content:none;}
+    .jss-item-content-margin ul:after {content:none;}
+
+    /* 時間割用テーブル */
+    .time-table {border-collapse: collapse;}
+    .time-table th {color: white; background-color: #0070c0}
+    .time-table th,.time-table td {border: 1px #808080 solid; font-size: x-small;}
+    .time-table .line2 {color: blue}
+
+  </style>
+  <meta name="format-detection" content="telephone=no">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=no" />-->
+</head>
+
+<body>
+  <div class="statusbar-overlay"></div>
+
+  <!--↓↓↓ 中央 ↓↓↓-->
+  <div class="views">
+    <!-- メイン -->
+    <div class="view view-main">
+      <div class="navbar" style="color: white; background: #0070c0">
+        <div class="navbar-inner">
+          <div class="left sliding" id="left_slid">
+            <a href="#" class="open-panel" id="menu_icon">
+              <i class="f7-icons color-white header-icon">bars</i>
+            </a>
+            <a href="#" class="close-panel" id="ret_icon">
+              <i class="f7-icons color-white header-icon">arrow_left</i>
+            </a>
+
+          </div>
+          <div class="center sliding" id="menu_title"></div>
+          <div class="right sliding">
+            <!-- バーコード -->
+            <a href="./html/barcode_select.html" class="link" id="barcode_icon"  style="visibility:hidden;">
+              <i class="fa fa-barcode color-white" aria-hidden="true"></i>
+            </a>            
+            <!-- 通学証明書 -->
+<!--            <a href="./html/certificate.html" class="link" id="certificate_icon">-->
+<!--            <a href="./html/certificate_history.html" class="link" id="certificate_icon">-->
+            <a href="#" id="certificate_icon" class="link" onclick="certificateIconTap()" style="visibility:hidden;">
+              <i class="material-icons color-white">train</i>
+            </a>
+            <!-- 通知履歴 -->
+            <a href="./html/info_history.html" class="link" id="hist_icon" style="visibility:hidden;">
+              <i class="f7-icons color-white">chat_fill
+                <span class="badge bg-red" id="badge" style="margin-top:2px; visibility:hidden;">0</span>
+              </i>
+            </a>
+            <!-- 設定 -->
+            <a href="./html/config.html" class="link" id="config_icon">
+              <i class="f7-icons color-white">more</i>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="pages navbar-through">
+        <div data-page="main-page" class="page no-toolbar tabbar-labels-fixed">
+
+          <div class="panel-overlay"></div>
+          <!-- Left panel -->
+          <!-- パネルの大きさが若干足りないので、オーバーライドして調整 -->
+          <div class="panel panel-left panel-cover" style="margin-top: 10px;">
+            <div class="content-block" style="padding: 0 0px;">
+              <div class="list-block">
+                <div class="content-block-title jss-item-content-item" style="background-color: #192f60">
+                  <a class="item-content" id="content-img">
+                  </a>
+                </div> 
+
+                <ul>
+                  <!-- メニュー１ -->
+                  <li>
+                    <a href="#" class="item-link item-content close-panel" id="menu_1" onclick='menu_click("1")'>
+                      <div class="item-media"><i class="f7-icons">login</i></div>
+                      <div class="item-inner">
+                        <ul style="padding-left: 0px; background-color: rgba(255,255,255,0);">
+                          <li>
+                            <div class="item-title" id="menu_title1"><!-- index.jsにて設定 --></div>
+                          </li>
+                        </ul>
+                      </div>
+                    </a>
+                  </li>
+                  <!-- メニュー２ -->
+                  <li>
+                    <a href="#" class="item-link item-content close-panel" id="menu_2" onclick='menu_click("2")'>
+                      <div class="item-media"><i class="f7-icons">calendar</i></div>
+                      <div class="item-inner">
+                        <ul style="padding-left: 0px; background-color: rgba(255,255,255,0);">
+                          <li>
+                            <div class="item-title" id="menu_title2"><!-- index.jsにて設定 --></div>
+                          </li>
+                        </ul>
+                      </div>
+                    </a>
+                  </li>
+                  <!-- メニュー３ -->
+                  <li>
+                    <a href="#" class="item-link item-content close-panel" id="menu_3" onclick='menu_click("3")'>
+                      <div class="item-media"><img src="./img/techo.png" width="30" height="30"></div>
+                      <div class="item-inner">
+                        <ul style="padding-left: 0px; background-color: rgba(255,255,255,0);">
+                          <li>
+                            <div class="item-title" id="menu_title3"><!-- index.jsにて設定 --></div>
+                          </li>
+                        </ul>
+                      </div>
+                    </a>
+                  </li>
+                  <!-- メニュー４ -->
+                  <li>
+                    <a href="#" class="item-link item-content close-panel" id="menu_4" onclick='menu_click("4")'>
+                      <div class="item-media"><i class="f7-icons">email</i></div>
+                      <div class="item-inner">
+                        <ul style="padding-left: 0px; background-color: rgba(255,255,255,0);">
+                          <li>
+                            <div class="item-title" id="menu_title4"><!-- index.jsにて設定 --></div>
+                          </li>
+                        </ul>
+                      </div>
+                    </a>
+                  </li>
+                  <!-- メニュー５ -->
+                  <li>
+                    <a href="#" class="item-link item-content close-panel" id="menu_5" onclick='menu_click("5")'>
+                      <div class="item-media"><i class="f7-icons  color-red">heart_fill</i></div>
+                      <div class="item-inner">
+                        <ul style="padding-left: 0px; background-color: rgba(255,255,255,0);">
+                          <li>
+                            <div class="item-title"  id="menu_title5"><!-- index.jsにて設定 --></div>
+                          </li>
+                        </ul>
+                      </div>
+                    </a>
+                  </li>
+                  <!-- メニュー６ -->
+                  <li>
+                    <!--<a href="./html/pdf_viewer.html" class="item-link item-content close-panel" id="menu_6" onclick='menu_click("6")'>-->
+                    <a href="#" class="item-link item-content " id="menu_6" onClick="showPdf()">
+                      <div class="item-media"><i class="f7-icons  color-green">book_fill</i></div>
+                      <div class="item-inner">
+                        <ul style="padding-left: 0px; background-color: rgba(255,255,255,0);">
+                          <li>
+                            <div class="item-title" id="menu_title6">防災マニュアル</div>
+                          </li>
+                        </ul>
+                      </div>
+                    </a>
+                  </li>
+                  <!-- メニュー7 -->
+                  <li>
+                    <a href="./html/feedback.html" class="item-link item-content" id="menu_7">
+                      <div class="item-media"><i class="f7-icons">paper_plane</i></div>
+                      <div class="item-inner">
+                        <ul style="padding-left: 0px; background-color: rgba(255,255,255,0);">
+                          <li>
+                            <div class="item-title" id="menu_title7">ご意見・ご要望</div>
+                          </li>
+                        </ul>
+                      </div>
+                    </a>
+                  </li>
+                  <!-- 管理者用メニュー　ビーコン確認画面 -->
+                  <!-- <li>
+                    <a href="./html/beacon_check.html" class="item-link item-content " id="menu_beacon_check">
+                      <div class="item-media"><i class="f7-icons">radio</i></div>
+                      <div class="item-inner">
+                        <ul style="padding-left: 0px; background-color: rgba(255,255,255,0);">
+                          <li>
+                            <div class="item-title">ビーコン情報：表示</div>
+                          </li>
+                        </ul>
+                      </div>
+                    </a>
+                  </li> -->
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!--<div class="page-content pull-to-refresh-content" style="background-image: url('./img/gaku_back.png'); background-size:cover;">-->
+          <div class="page-content pull-to-refresh-content" id="main_background">
+          <!--<div class="page-content" style="background-image: url('./img/gaku_back.png'); background-size:cover;">-->
+            <div id="home" class="active">
+              <div class="pull-to-refresh-layer">
+                 <!--再読み込み -->
+                <div class="text-center jss-text">指を離して更新</div>
+                <div class="pull-to-refresh-arrow" style="margin-top: 1px;"></div>
+                <div class="preloader"></div>
+              </div>
+              <div class="content-block">
+                <!-- ホーム画面 -->
+                <div class="application " style="margin:0">
+                  <p id="main-caution-box" style="margin:32 0">学生証申請ボタンをタップして、申請処理を実行してください。</p>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--↑↑↑ 中央 ↑↑↑-->
+
+  <script type="text/javascript" src="js/libs/Framework7/js/framework7.js"></script>
+  <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+  <script type="text/javascript" src="js/appconst.js"></script>
+  <script type="text/javascript" src="js/index.js"></script>
+  <script type="text/javascript" src="js/calendar.js"></script>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.qrcode.min.js"></script> 
+  <script type="text/javascript" src="js/libs/turnjs4/turn.min.js"></script>
+  <script type="text/javascript" src="js/libs/cropperjs/js/cropper.min.js"></script>
+
+</body>
+
 </html>
